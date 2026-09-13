@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0f7d8c">
+<meta name="theme-color" content="#0b6b78">
 <title>Hot Tub Water Test</title>
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/icon-192.png">
@@ -11,24 +11,30 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Hot Tub Test">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,500;0,600;0,700;0,800;1,500&family=IBM+Plex+Mono:wght@500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,500;0,600;0,700;0,800;0,900;1,500&family=IBM+Plex+Mono:wght@500;600;700&display=swap');
 
   :root{
-    --bg:#f4f8f7; --surface:#ffffff; --surface-sunken:#eaf1f0;
-    --ink:#14262a; --ink-muted:#5a7377; --ink-faint:#8ea1a3;
-    --border:#dbe7e5; --accent:#0f7d8c; --accent-ink:#ffffff; --accent-soft:#e1f1f2;
-    --good:#1f8a4c; --good-soft:#e3f5e9; --warn:#a5710e; --warn-soft:#faf0dc;
-    --bad:#b7413a; --bad-soft:#fbe9e7;
-    --shadow:0 1px 2px rgba(20,38,42,.05),0 10px 28px -14px rgba(20,38,42,.22);
+    --bg:#f2f6f5; --surface:#ffffff; --surface-raised:#ffffff; --surface-sunken:#eaf1ef;
+    --ink:#0f2226; --ink-muted:#54696c; --ink-faint:#8a9c9e;
+    --border:#dee8e6; --border-strong:#c7d6d3;
+    --accent:#0b6b78; --accent-2:#12909f; --accent-ink:#ffffff; --accent-soft:#e2f1f1;
+    --good:#1c8a52; --good-soft:#e6f6ec; --warn:#a06a12; --warn-soft:#fbf1de;
+    --bad:#b13f3a; --bad-soft:#fbe9e8;
+    --shadow-sm:0 1px 2px rgba(9,26,29,.05);
+    --shadow-md:0 10px 26px -14px rgba(9,26,29,.28),0 2px 6px rgba(9,26,29,.06);
+    --shadow-lg:0 24px 48px -22px rgba(9,26,29,.34);
+    --radius-lg:22px; --radius-md:15px; --radius-sm:10px;
   }
   @media (prefers-color-scheme: dark){
     :root{
-      --bg:#0e1517; --surface:#151f21; --surface-sunken:#101819;
-      --ink:#e7f0ef; --ink-muted:#93a8aa; --ink-faint:#647678; --border:#263335;
-      --accent:#4fc4d3; --accent-ink:#06272c; --accent-soft:#17383d;
-      --good:#52c98a; --good-soft:#133423; --warn:#dba949; --warn-soft:#3a2d10;
-      --bad:#ec8279; --bad-soft:#3a1c18;
-      --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px -14px rgba(0,0,0,.5);
+      --bg:#0b1315; --surface:#131e20; --surface-raised:#162325; --surface-sunken:#0f1a1c;
+      --ink:#e9f2f1; --ink-muted:#93a9ab; --ink-faint:#5f7477; --border:#223032; --border-strong:#2c3d3f;
+      --accent:#4bc2d1; --accent-2:#6fd3df; --accent-ink:#052226; --accent-soft:#173338;
+      --good:#57cc8f; --good-soft:#123424; --warn:#e0b356; --warn-soft:#3a2c10;
+      --bad:#ef8e83; --bad-soft:#3a1d19;
+      --shadow-sm:0 1px 2px rgba(0,0,0,.35);
+      --shadow-md:0 10px 26px -14px rgba(0,0,0,.55),0 2px 6px rgba(0,0,0,.3);
+      --shadow-lg:0 24px 48px -22px rgba(0,0,0,.6);
     }
   }
   *{box-sizing:border-box;}
@@ -36,115 +42,198 @@
   body{font-family:'Archivo','Segoe UI',system-ui,sans-serif;-webkit-font-smoothing:antialiased;
     padding-bottom:env(safe-area-inset-bottom);}
   .mono{font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;}
-  #app{max-width:520px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column;}
+  #app{max-width:520px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column;position:relative;}
 
-  header.top{position:sticky;top:0;z-index:5;background:var(--bg);
+  .icon{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;
+    stroke-linecap:round;stroke-linejoin:round;}
+  .icon.solid{fill:currentColor;stroke:none;}
+  .icon-sm{width:14px;height:14px;}
+
+  header.top{position:sticky;top:0;z-index:5;
+    background:linear-gradient(180deg,var(--bg) 60%,rgba(242,246,245,0));
     display:flex;align-items:center;justify-content:space-between;
-    padding:calc(env(safe-area-inset-top) + 14px) 18px 12px;border-bottom:1px solid var(--border);}
-  header.top h1{font-size:18px;font-weight:800;margin:0;letter-spacing:-.01em;}
-  header.top .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:600;
-    letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:2px;}
-  .icon-btn{background:none;border:none;color:var(--ink-muted);font-size:20px;cursor:pointer;
-    padding:6px;line-height:1;border-radius:8px;}
-  .icon-btn:active{background:var(--surface-sunken);}
+    padding:calc(env(safe-area-inset-top) + 16px) 18px 14px;}
+  @media (prefers-color-scheme: dark){
+    header.top{background:linear-gradient(180deg,var(--bg) 60%,rgba(11,19,21,0));}
+  }
+  header.top .brand{display:flex;align-items:center;gap:10px;}
+  header.top .brand-mark{width:36px;height:36px;border-radius:11px;flex:none;
+    background:linear-gradient(150deg,var(--accent-2),var(--accent));
+    display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-sm);}
+  header.top .brand-mark .icon{width:19px;height:19px;stroke:var(--accent-ink);}
+  header.top h1{font-size:17px;font-weight:800;margin:0;letter-spacing:-.01em;line-height:1.15;}
+  header.top .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;
+    letter-spacing:.09em;text-transform:uppercase;color:var(--accent);margin-bottom:1px;}
+  .icon-btn{background:var(--surface);border:1px solid var(--border);color:var(--ink-muted);cursor:pointer;
+    width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+    box-shadow:var(--shadow-sm);transition:transform .15s ease,background .15s ease;}
+  .icon-btn:active{transform:scale(.92);background:var(--surface-sunken);}
 
-  main{flex:1;padding:16px 18px 40px;display:flex;flex-direction:column;gap:16px;}
+  main{flex:1;padding:4px 18px 40px;display:flex;flex-direction:column;gap:16px;}
   .screen{display:none;flex-direction:column;gap:16px;}
-  .screen.active{display:flex;}
+  .screen.active{display:flex;animation:screenIn .32s cubic-bezier(.2,.8,.2,1);}
+  @keyframes screenIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+  @media (prefers-reduced-motion: reduce){ .screen.active{animation:none;} }
 
-  .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;
-    box-shadow:var(--shadow);padding:18px;}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-md);padding:20px;}
+  .card.flush{padding:0;overflow:hidden;}
   .section-label{font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:600;
-    letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 12px;}
+    letter-spacing:.09em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 14px;
+    display:flex;align-items:center;gap:6px;}
 
   button{font-family:inherit;}
   .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
-    padding:14px 16px;border-radius:12px;border:none;font-size:15px;font-weight:700;cursor:pointer;
-    -webkit-tap-highlight-color:transparent;}
-  .btn-primary{background:var(--accent);color:var(--accent-ink);}
-  .btn-primary:active{opacity:.85;}
+    padding:15px 16px;border-radius:14px;border:none;font-size:15px;font-weight:700;cursor:pointer;
+    -webkit-tap-highlight-color:transparent;transition:transform .12s ease,opacity .12s ease;}
+  .btn .icon{width:18px;height:18px;}
+  .btn-primary{background:linear-gradient(155deg,var(--accent-2),var(--accent));color:var(--accent-ink);
+    box-shadow:0 10px 22px -10px color-mix(in srgb, var(--accent) 65%, transparent);}
+  .btn-primary:active{transform:scale(.98);opacity:.92;}
   .btn-secondary{background:var(--surface-sunken);color:var(--ink);border:1px solid var(--border);}
-  .btn-secondary:active{background:var(--border);}
+  .btn-secondary:active{transform:scale(.98);background:var(--border);}
   .btn-row{display:flex;gap:10px;}
   .btn-row .btn{flex:1;}
   .btn[disabled]{opacity:.5;pointer-events:none;}
 
   .home-hero{display:flex;flex-direction:column;align-items:center;text-align:center;
-    padding:28px 18px;gap:6px;}
-  .home-hero .tub-name{font-size:15px;font-weight:700;}
-  .home-hero .tub-cap{font-size:12.5px;color:var(--ink-muted);}
+    padding:32px 20px 26px;gap:4px;position:relative;overflow:hidden;
+    background:linear-gradient(165deg,var(--accent-soft),var(--surface) 55%);}
+  .home-hero .tub-avatar{width:56px;height:56px;border-radius:50%;margin-bottom:12px;
+    background:linear-gradient(150deg,var(--accent-2),var(--accent));
+    display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-md);}
+  .home-hero .tub-avatar .icon{width:26px;height:26px;stroke:var(--accent-ink);}
+  .home-hero .tub-name{font-size:16.5px;font-weight:800;letter-spacing:-.01em;}
+  .home-hero .tub-cap{font-size:12.5px;color:var(--ink-muted);margin-top:1px;}
+  .home-hero .last-test{display:inline-flex;align-items:center;gap:6px;margin-top:12px;
+    font-size:12px;font-weight:600;padding:6px 12px;border-radius:999px;
+    background:var(--surface);border:1px solid var(--border);color:var(--ink-muted);box-shadow:var(--shadow-sm);}
+  .home-hero .last-test .icon{width:13px;height:13px;}
+  .home-hero .btn{max-width:280px;margin-top:18px;}
 
   .field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
   .field:last-child{margin-bottom:0;}
-  .field label{font-size:11.5px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;
+  .field label{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
     color:var(--ink-faint);}
   .field input[type=text], .field input[type=number], .field input[type=url], .field textarea{
-    font-family:inherit;font-size:15px;padding:11px 12px;border-radius:10px;
-    border:1px solid var(--border);background:var(--surface-sunken);color:var(--ink);width:100%;}
+    font-family:inherit;font-size:15px;padding:12px 13px;border-radius:12px;
+    border:1.5px solid var(--border);background:var(--surface-sunken);color:var(--ink);width:100%;
+    transition:border-color .15s ease;}
+  .field input:focus, .field textarea:focus{outline:none;border-color:var(--accent);}
   .field textarea{resize:vertical;min-height:60px;}
 
   .chip-row{display:flex;flex-wrap:wrap;gap:8px;}
-  .chip{padding:8px 14px;border-radius:999px;border:1px solid var(--border);
-    background:var(--surface-sunken);color:var(--ink);font-size:13.5px;font-weight:600;cursor:pointer;}
-  .chip.selected{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
+  .chip{padding:9px 15px;border-radius:999px;border:1.5px solid var(--border);
+    background:var(--surface-sunken);color:var(--ink);font-size:13.5px;font-weight:600;cursor:pointer;
+    transition:all .15s ease;}
+  .chip.selected{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);
+    box-shadow:0 6px 16px -8px color-mix(in srgb, var(--accent) 60%, transparent);}
+
+  .status-banner{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:var(--radius-md);
+    font-size:13.5px;font-weight:700;line-height:1.3;}
+  .status-banner .icon{width:22px;height:22px;flex:none;}
+  .status-banner.good{background:var(--good-soft);color:var(--good);}
+  .status-banner.warn{background:var(--warn-soft);color:var(--warn);}
+  .status-banner.bad{background:var(--bad-soft);color:var(--bad);}
+  .status-banner .sub{display:block;font-weight:500;color:var(--ink-muted);margin-top:2px;font-size:12px;}
 
   .readings{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
-  .reading{background:var(--surface-sunken);border:1px solid var(--border);border-radius:10px;
-    padding:12px 10px 10px;display:flex;flex-direction:column;gap:5px;align-items:flex-start;}
-  .reading .param{font-size:11px;font-weight:600;color:var(--ink-muted);}
-  .reading .value{font-size:22px;font-weight:700;line-height:1;}
+  .reading{border-radius:var(--radius-md);
+    padding:14px 10px 12px;display:flex;flex-direction:column;gap:6px;align-items:flex-start;
+    border:1.5px solid var(--border);background:var(--surface-sunken);}
+  .reading.good{background:var(--good-soft);border-color:transparent;}
+  .reading.warn{background:var(--warn-soft);border-color:transparent;}
+  .reading.bad{background:var(--bad-soft);border-color:transparent;}
+  .reading .param{font-size:10.5px;font-weight:700;letter-spacing:.02em;color:var(--ink-muted);
+    text-transform:uppercase;}
+  .reading.good .param{color:var(--good);} .reading.warn .param{color:var(--warn);} .reading.bad .param{color:var(--bad);}
+  .reading .value{font-size:23px;font-weight:800;line-height:1;letter-spacing:-.01em;}
   .reading .value .unit{font-size:10.5px;font-weight:600;color:var(--ink-faint);margin-left:2px;}
-  .reading .range{font-size:10px;color:var(--ink-faint);}
+  .reading .range{font-size:9.5px;color:var(--ink-faint);}
   .pill{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;
     letter-spacing:.03em;text-transform:uppercase;padding:3px 8px 3px 7px;border-radius:999px;}
-  .pill::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor;}
-  .pill.good{color:var(--good);background:var(--good-soft);}
-  .pill.warn{color:var(--warn);background:var(--warn-soft);}
-  .pill.bad{color:var(--bad);background:var(--bad-soft);}
+  .pill::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor;flex:none;}
+  .pill.good{color:var(--good);background:var(--surface);}
+  .pill.warn{color:var(--warn);background:var(--surface);}
+  .pill.bad{color:var(--bad);background:var(--surface);}
 
-  .status-line{font-size:13.5px;color:var(--ink-muted);}
-  .status-line strong{color:var(--ink);}
-  .confidence-note{font-size:12px;color:var(--ink-faint);margin-top:8px;
-    padding-top:8px;border-top:1px dashed var(--border);}
+  .confidence-note{display:flex;gap:8px;font-size:12px;color:var(--ink-muted);margin-top:10px;
+    padding-top:10px;border-top:1px dashed var(--border);}
+  .confidence-note .icon{width:15px;height:15px;flex:none;margin-top:1px;color:var(--ink-faint);}
+  .confidence-note:empty{display:none;}
 
-  #captureCanvasWrap{position:relative;width:100%;border-radius:12px;overflow:hidden;
-    background:#000;touch-action:none;}
+  .step-badge{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;
+    border-radius:8px;background:var(--accent-soft);color:var(--accent);font-weight:800;font-size:12px;
+    flex:none;font-family:'IBM Plex Mono',monospace;}
+  .step-head{display:flex;align-items:center;gap:10px;margin-bottom:4px;}
+  .step-head h2{font-size:15.5px;font-weight:800;margin:0;letter-spacing:-.01em;}
+
+  .instruction-icon-row{display:flex;justify-content:center;padding:22px 0 6px;}
+  .instruction-icon-row .disc{width:64px;height:64px;border-radius:50%;
+    background:var(--accent-soft);display:flex;align-items:center;justify-content:center;}
+  .instruction-icon-row .disc .icon{width:28px;height:28px;color:var(--accent);}
+
+  #captureCanvasWrap{position:relative;width:100%;border-radius:var(--radius-md);overflow:hidden;
+    background:#000;touch-action:none;box-shadow:var(--shadow-md);}
   #captureCanvas{display:block;width:100%;height:auto;}
   .sampler{position:absolute;left:4%;width:92%;height:9%;border:2px solid #fff;
-    box-shadow:0 0 0 999px rgba(0,0,0,.35);border-radius:6px;cursor:grab;
+    box-shadow:0 0 0 999px rgba(4,10,11,.45);border-radius:8px;cursor:grab;
     display:flex;align-items:center;justify-content:space-between;padding:0 8px;}
-  .sampler .tag{background:rgba(0,0,0,.55);color:#fff;font-size:11px;font-weight:700;
-    padding:2px 6px;border-radius:6px;font-family:'IBM Plex Mono',monospace;}
-  .sampler .swatch{width:20px;height:20px;border-radius:5px;border:1.5px solid #fff;}
+  .sampler .tag{background:rgba(4,10,11,.65);color:#fff;font-size:11px;font-weight:700;
+    padding:3px 7px;border-radius:7px;font-family:'IBM Plex Mono',monospace;}
+  .sampler .swatch{width:20px;height:20px;border-radius:6px;border:1.5px solid #fff;box-shadow:var(--shadow-sm);}
   .sampler.bromine{border-color:#e8b84b;}
   .sampler.ph{border-color:#e0665a;}
   .sampler.alk{border-color:#4fc4d3;}
 
-  .history-wrap{overflow-x:auto;}
-  table.history{width:100%;border-collapse:collapse;font-size:12.5px;}
-  table.history th,table.history td{text-align:left;padding:8px 8px;border-bottom:1px solid var(--border);
-    white-space:nowrap;}
-  table.history th{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;
-    letter-spacing:.05em;text-transform:uppercase;color:var(--ink-faint);}
-  table.history td.num{font-family:'IBM Plex Mono',monospace;}
-  table.history tr:last-child td{border-bottom:none;}
+  .history-list{display:flex;flex-direction:column;}
+  .history-item{display:flex;align-items:flex-start;gap:12px;padding:12px 2px;
+    border-bottom:1px solid var(--border);}
+  .history-item:last-child{border-bottom:none;padding-bottom:0;}
+  .history-item:first-child{padding-top:0;}
+  .history-item .dot-wrap{width:30px;height:30px;border-radius:10px;flex:none;
+    display:flex;align-items:center;justify-content:center;}
+  .history-item .dot-wrap .icon{width:15px;height:15px;}
+  .history-item.good .dot-wrap{background:var(--good-soft);color:var(--good);}
+  .history-item.warn .dot-wrap{background:var(--warn-soft);color:var(--warn);}
+  .history-item.bad .dot-wrap{background:var(--bad-soft);color:var(--bad);}
+  .history-item .h-main{flex:1;min-width:0;}
+  .history-item .h-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;}
+  .history-item .h-date{font-size:13px;font-weight:700;}
+  .history-item .h-time{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-faint);}
+  .history-item .h-status{font-size:12px;color:var(--ink-muted);margin-top:2px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .history-item .h-stats{display:flex;gap:10px;margin-top:5px;font-family:'IBM Plex Mono',monospace;
+    font-size:11px;color:var(--ink-faint);}
+  .history-item .h-stats b{color:var(--ink-muted);font-weight:600;}
 
-  .empty-note{font-size:13px;color:var(--ink-faint);text-align:center;padding:18px 8px;}
+  .empty-note{display:flex;flex-direction:column;align-items:center;gap:8px;
+    font-size:13px;color:var(--ink-faint);text-align:center;padding:22px 8px;}
+  .empty-note .icon{width:26px;height:26px;color:var(--ink-faint);opacity:.6;}
 
   nav.tabbar{position:sticky;bottom:0;background:var(--surface);border-top:1px solid var(--border);
-    display:flex;padding:8px 10px calc(env(safe-area-inset-bottom) + 8px);gap:4px;}
+    display:flex;padding:9px 10px calc(env(safe-area-inset-bottom) + 9px);gap:4px;
+    box-shadow:0 -8px 20px -18px rgba(9,26,29,.4);}
   nav.tabbar button{flex:1;background:none;border:none;display:flex;flex-direction:column;
-    align-items:center;gap:3px;padding:6px 4px;color:var(--ink-faint);font-size:10.5px;font-weight:600;
-    cursor:pointer;}
+    align-items:center;gap:4px;padding:6px 4px;color:var(--ink-faint);font-size:10.5px;font-weight:600;
+    cursor:pointer;border-radius:10px;transition:color .15s ease;}
+  nav.tabbar button .icon{width:21px;height:21px;}
   nav.tabbar button.active{color:var(--accent);}
-  nav.tabbar button .dot{width:6px;height:6px;border-radius:50%;background:transparent;}
-  nav.tabbar button.active .dot{background:var(--accent);}
+  nav.tabbar button.primary-tab{margin-top:-22px;}
+  nav.tabbar button.primary-tab .icon-wrap{width:46px;height:46px;border-radius:16px;
+    background:linear-gradient(150deg,var(--accent-2),var(--accent));display:flex;align-items:center;
+    justify-content:center;box-shadow:var(--shadow-md);margin-bottom:1px;}
+  nav.tabbar button.primary-tab .icon-wrap .icon{stroke:var(--accent-ink);width:22px;height:22px;}
+  nav.tabbar button.primary-tab.active{color:var(--accent);}
 
-  .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);
-    color:var(--bg);padding:10px 16px;border-radius:10px;font-size:13px;font-weight:600;
-    box-shadow:var(--shadow);z-index:50;max-width:88%;text-align:center;}
-  .toast.error{background:var(--bad);}
-  .toast.good{background:var(--good);}
+  .toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--ink);
+    color:var(--bg);padding:11px 18px;border-radius:12px;font-size:13px;font-weight:600;
+    box-shadow:var(--shadow-lg);z-index:50;max-width:88%;text-align:center;
+    display:flex;align-items:center;gap:8px;animation:toastIn .25s ease;}
+  .toast .icon{width:16px;height:16px;flex:none;}
+  @keyframes toastIn{from{opacity:0;transform:translate(-50%,8px);}to{opacity:1;transform:translate(-50%,0);}}
+  .toast.error{background:var(--bad);color:#fff;}
+  .toast.good{background:var(--good);color:#fff;}
 
   .hidden{display:none!important;}
   .row-between{display:flex;align-items:center;justify-content:space-between;gap:10px;}
@@ -156,44 +245,82 @@
 </style>
 </head>
 <body>
+
+<svg style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
+  <defs>
+    <symbol id="icon-droplet" viewBox="0 0 24 24"><path d="M12 2.5c0 0-7 9.5-7 13.5a7 7 0 0 0 14 0c0-4-7-13.5-7-13.5z"/></symbol>
+    <symbol id="icon-sliders" viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><circle cx="9" cy="6" r="2" fill="currentColor" stroke="none"/><line x1="4" y1="12" x2="20" y2="12"/><circle cx="16" cy="12" r="2" fill="currentColor" stroke="none"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="11" cy="18" r="2" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="icon-camera" viewBox="0 0 24 24"><path d="M4 8h3l1.5-2.2A2 2 0 0 1 10.2 5h3.6a2 2 0 0 1 1.7.9L17 8h3a1.5 1.5 0 0 1 1.5 1.5v9A1.5 1.5 0 0 1 20 20H4a1.5 1.5 0 0 1-1.5-1.5v-9A1.5 1.5 0 0 1 4 8z"/><circle cx="12" cy="13.5" r="3.6"/></symbol>
+    <symbol id="icon-refresh" viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 13.6-5.7L20 8.5"/><path d="M20 4v4.5h-4.5"/><path d="M20 12a8 8 0 0 1-13.6 5.7L4 15.5"/><path d="M4 20v-4.5h4.5"/></symbol>
+    <symbol id="icon-chevron-left" viewBox="0 0 24 24"><polyline points="15 5 8 12 15 19"/></symbol>
+    <symbol id="icon-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="8 12.5 10.8 15.2 16 9.5"/></symbol>
+    <symbol id="icon-alert-triangle" viewBox="0 0 24 24"><path d="M12 3.5 21.5 20h-19z" stroke-linejoin="round"/><line x1="12" y1="10" x2="12" y2="14.2"/><circle cx="12" cy="17" r="0.9" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="icon-alert-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="7.5" x2="12" y2="13"/><circle cx="12" cy="16.3" r="0.9" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="icon-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></symbol>
+    <symbol id="icon-home" viewBox="0 0 24 24"><path d="M4 11 12 4l8 7"/><path d="M6 9.5V20h12V9.5"/></symbol>
+    <symbol id="icon-history" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 3-6.2"/><polyline points="3 3.5 3.3 6.5 6.3 6.3"/><polyline points="12 8 12 12.3 15 14"/></symbol>
+    <symbol id="icon-flask" viewBox="0 0 24 24"><path d="M9 3h6"/><path d="M10 3v6.5L4.7 18a2 2 0 0 0 1.7 3h11.2a2 2 0 0 0 1.7-3L14 9.5V3"/><line x1="8" y1="15" x2="16" y2="15"/></symbol>
+  </defs>
+</svg>
+
 <div id="app">
 
   <header class="top">
-    <div>
-      <div class="eyebrow" id="tubEyebrow">HOT TUB</div>
-      <h1>Water Test</h1>
+    <div class="brand">
+      <div class="brand-mark"><svg class="icon"><use href="#icon-droplet"/></svg></div>
+      <div>
+        <div class="eyebrow" id="tubEyebrow">HOT TUB</div>
+        <h1>Water Test</h1>
+      </div>
     </div>
-    <button class="icon-btn" onclick="showScreen('settings')" aria-label="Settings">&#9881;</button>
+    <button class="icon-btn" onclick="showScreen('settings')" aria-label="Settings">
+      <svg class="icon"><use href="#icon-sliders"/></svg>
+    </button>
   </header>
 
   <main>
 
     <!-- HOME -->
     <section class="screen active" id="screen-home">
-      <div class="card home-hero">
+      <div class="card flush home-hero">
+        <div class="tub-avatar"><svg class="icon"><use href="#icon-droplet"/></svg></div>
         <div class="tub-name" id="homeTubName">Wellis Malaga</div>
         <div class="tub-cap" id="homeTubCap">1,200 litres</div>
-        <div style="height:6px;"></div>
-        <button class="btn btn-primary" style="max-width:260px;" onclick="startCapture()">&#128247; Test Water</button>
+        <div class="last-test hidden" id="homeLastTest"></div>
+        <button class="btn btn-primary" onclick="startCapture()">
+          <svg class="icon"><use href="#icon-camera"/></svg>Test Water
+        </button>
       </div>
 
       <div class="card">
         <div class="row-between" style="margin-bottom:2px;">
-          <p class="section-label" style="margin:0;">Recent tests</p>
-          <button class="icon-btn" style="font-size:15px;" onclick="loadHistory()" aria-label="Refresh">&#8635;</button>
+          <p class="section-label" style="margin:0;">
+            <svg class="icon icon-sm"><use href="#icon-history"/></svg>Recent tests
+          </p>
+          <button class="icon-btn" style="width:32px;height:32px;" onclick="loadHistory()" aria-label="Refresh">
+            <svg class="icon icon-sm"><use href="#icon-refresh"/></svg>
+          </button>
         </div>
-        <div id="historyArea"><div class="empty-note">Loading…</div></div>
+        <div id="historyArea" class="history-list"><div class="empty-note">Loading…</div></div>
       </div>
     </section>
 
     <!-- CAPTURE -->
     <section class="screen" id="screen-capture">
       <div class="card">
-        <p class="section-label">1. Photograph the strip</p>
-        <p class="small-muted" style="margin-top:-6px;">Good light, strip flat, all three pads visible. No need to include the bottle chart — that's already built in.</p>
-        <div style="height:10px;"></div>
+        <div class="step-head">
+          <span class="step-badge">1</span>
+          <h2>Photograph the strip</h2>
+        </div>
+        <div class="instruction-icon-row">
+          <div class="disc"><svg class="icon"><use href="#icon-camera"/></svg></div>
+        </div>
+        <p class="small-muted" style="text-align:center;">Good light, strip flat, all three pads visible. No need to include the bottle chart — that's already built in.</p>
+        <div style="height:6px;"></div>
         <input type="file" accept="image/*" capture="environment" id="fileInput" style="display:none;" onchange="onPhoto(event)">
-        <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">&#128247; Take / Choose Photo</button>
+        <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+          <svg class="icon"><use href="#icon-camera"/></svg>Take / Choose Photo
+        </button>
         <button class="btn btn-secondary" style="margin-top:10px;" onclick="showScreen('home')">Cancel</button>
       </div>
     </section>
@@ -201,9 +328,11 @@
     <!-- ALIGN -->
     <section class="screen" id="screen-align">
       <div class="card">
-        <p class="section-label">2. Line up each bar with a pad</p>
-        <p class="small-muted" style="margin-top:-6px;">Drag the three bars so each sits over one colour pad — yellow bar on Bromine (top), red on pH (middle), teal on Alkalinity (bottom).</p>
-        <div style="height:10px;"></div>
+        <div class="step-head">
+          <span class="step-badge">2</span>
+          <h2>Line up each bar with a pad</h2>
+        </div>
+        <p class="small-muted" style="margin:2px 0 12px;">Drag the three bars so each sits over one colour pad — yellow bar on Bromine (top), red on pH (middle), teal on Alkalinity (bottom).</p>
         <div id="captureCanvasWrap">
           <canvas id="captureCanvas"></canvas>
           <div class="sampler bromine" id="sampler-bromine" data-key="bromine"><span class="tag">Br</span><span class="swatch" id="swatch-bromine"></span></div>
@@ -212,7 +341,9 @@
         </div>
         <div style="height:14px;"></div>
         <div class="btn-row">
-          <button class="btn btn-secondary" onclick="showScreen('capture')">Retake</button>
+          <button class="btn btn-secondary" onclick="showScreen('capture')">
+            <svg class="icon"><use href="#icon-chevron-left"/></svg>Retake
+          </button>
           <button class="btn btn-primary" onclick="analyzeStrip()">Analyze</button>
         </div>
       </div>
@@ -220,34 +351,38 @@
 
     <!-- RESULTS -->
     <section class="screen" id="screen-results">
+      <div class="status-banner good" id="rBanner"></div>
+
       <div class="card">
         <p class="section-label">Readings <span id="resultsConfBadge" class="small-muted"></span></p>
         <div class="readings">
-          <div class="reading">
+          <div class="reading" id="rPhCard">
             <span class="param">pH</span>
             <span class="value" id="rPh">&mdash;</span>
             <span class="range">Target 7.2&ndash;7.6</span>
             <span class="pill" id="rPhPill"></span>
           </div>
-          <div class="reading">
+          <div class="reading" id="rBrCard">
             <span class="param">Bromine</span>
             <span class="value" id="rBr">&mdash;</span>
             <span class="range">Target 5&ndash;10 ppm</span>
             <span class="pill" id="rBrPill"></span>
           </div>
-          <div class="reading">
+          <div class="reading" id="rAlkCard">
             <span class="param">Alkalinity</span>
             <span class="value" id="rAlk">&mdash;</span>
             <span class="range">Target 80&ndash;120 ppm</span>
             <span class="pill" id="rAlkPill"></span>
           </div>
         </div>
-        <div class="status-line" style="margin-top:12px;">Status: <strong id="rStatus">&mdash;</strong></div>
         <div class="confidence-note" id="rConfNote"></div>
+        <div class="hidden" id="rStatus"></div>
       </div>
 
       <div class="card" id="treatmentCard">
-        <p class="section-label">Recommended treatment</p>
+        <p class="section-label">
+          <svg class="icon icon-sm"><use href="#icon-flask"/></svg>Recommended treatment
+        </p>
         <div id="treatmentBody" class="small-muted">&mdash;</div>
       </div>
 
@@ -259,7 +394,7 @@
           <div class="chip" data-v="diffchem">Different chemical</div>
           <div class="chip" data-v="none">Not applying yet</div>
         </div>
-        <div class="field" style="margin-top:12px;">
+        <div class="field" style="margin-top:14px;">
           <label>Treatment applied (edit if needed)</label>
           <input type="text" id="appliedText">
         </div>
@@ -312,9 +447,15 @@
   </main>
 
   <nav class="tabbar">
-    <button class="active" id="tab-home" onclick="showScreen('home')"><span class="dot"></span>Home</button>
-    <button id="tab-capture" onclick="startCapture()"><span class="dot"></span>Test</button>
-    <button id="tab-settings" onclick="showScreen('settings')"><span class="dot"></span>Settings</button>
+    <button class="active" id="tab-home" onclick="showScreen('home')">
+      <svg class="icon"><use href="#icon-home"/></svg>Home
+    </button>
+    <button class="primary-tab" id="tab-capture" onclick="startCapture()">
+      <span class="icon-wrap"><svg class="icon"><use href="#icon-camera"/></svg></span>Test
+    </button>
+    <button id="tab-settings" onclick="showScreen('settings')">
+      <svg class="icon"><use href="#icon-sliders"/></svg>Settings
+    </button>
   </nav>
 
 </div>
@@ -638,16 +779,18 @@ function analyzeStrip(){
   document.getElementById('rBr').innerHTML = (bromine.value<3?'~':'') + Math.round(bromine.value*10)/10 + '<span class="unit">ppm</span>';
   document.getElementById('rAlk').innerHTML = (alk.confidence==='low' ? '~'+alk.label : Math.round(alk.value)) + '<span class="unit">ppm</span>';
 
-  setPill('rPhPill','ph');
-  setPill('rBrPill','bromine');
-  setPill('rAlkPill','alk');
+  setPill('rPhPill','ph','rPhCard');
+  setPill('rBrPill','bromine','rBrCard');
+  setPill('rAlkPill','alk','rAlkCard');
 
-  document.getElementById('rStatus').textContent = statusText(lastReadings);
+  const statusStr = statusText(lastReadings);
+  document.getElementById('rStatus').textContent = statusStr;
 
   const confNote = [];
   if(bromine.confidence!=='high') confNote.push('Bromine read from pad colour, moderate confidence.');
   if(alk.confidence==='low') confNote.push('Alkalinity is in the uncertain photo-reading zone — treat as approximate.');
-  document.getElementById('rConfNote').textContent = confNote.join(' ');
+  const confEl = document.getElementById('rConfNote');
+  confEl.innerHTML = confNote.length ? `<svg class="icon"><use href="#icon-alert-circle"/></svg><span>${confNote.join(' ')}</span>` : '';
   document.getElementById('resultsConfBadge').textContent = '';
 
   const settings = getSettings();
@@ -661,6 +804,17 @@ function analyzeStrip(){
   lastReadings.treatmentText = treatment.lines.join('; ') || 'None';
   lastReadings.anyTreatment = treatment.anyTreatment;
 
+  const banner = document.getElementById('rBanner');
+  if(treatment.anyTreatment){
+    banner.className = 'status-banner warn';
+    banner.innerHTML = `<svg class="icon"><use href="#icon-alert-triangle"/></svg>
+      <span>Attention needed<span class="sub">${statusStr}</span></span>`;
+  } else {
+    banner.className = 'status-banner good';
+    banner.innerHTML = `<svg class="icon"><use href="#icon-check-circle"/></svg>
+      <span>Balanced<span class="sub">${statusStr}</span></span>`;
+  }
+
   document.getElementById('appliedText').value = treatment.anyTreatment ? (treatment.lines[0]||'') : '';
   document.querySelectorAll('#appliedChips .chip').forEach(c=>c.classList.remove('selected'));
   if(!treatment.anyTreatment){
@@ -670,11 +824,12 @@ function analyzeStrip(){
   showScreen('results');
 }
 
-function setPill(id, param){
+function setPill(id, param, cardId){
   const {cls,label} = pillFor(param, lastReadings);
   const el = document.getElementById(id);
   el.className = 'pill '+cls;
   el.textContent = label;
+  if(cardId) document.getElementById(cardId).className = 'reading '+cls;
 }
 
 document.getElementById('appliedChips').addEventListener('click', (e)=>{
@@ -718,7 +873,8 @@ async function fetchHistory(limit){
 function showToast(msg, type){
   const t = document.createElement('div');
   t.className = 'toast' + (type?' '+type:'');
-  t.textContent = msg;
+  const iconId = type==='good' ? 'icon-check-circle' : type==='error' ? 'icon-alert-circle' : null;
+  t.innerHTML = (iconId ? `<svg class="icon"><use href="#${iconId}"/></svg>` : '') + `<span>${msg}</span>`;
   document.body.appendChild(t);
   setTimeout(()=>t.remove(), 3200);
 }
@@ -742,7 +898,7 @@ async function logTest(){
   };
   try{
     await callBackend(Object.assign({ action:'log' }, payload));
-    showToast('Test logged ✓', 'good');
+    showToast('Test logged', 'good');
     showScreen('home');
   } catch(err){
     showToast('Could not log: ' + err.message, 'error');
@@ -757,29 +913,56 @@ function currentAppliedFollowLabel(){
   return { asrec:'Yes', diffdose:'Different dose', diffchem:'Different chemical', none:'Not applied yet' }[sel.dataset.v];
 }
 
+// classify a saved status string into good/warn/bad for history styling
+function classifyStatus(status){
+  if(!status) return 'good';
+  const s = String(status);
+  if(/HIGH|LOW/.test(s)) return 'bad';
+  if(/uncertain/i.test(s)) return 'warn';
+  return 'good';
+}
+
 async function loadHistory(){
   const area = document.getElementById('historyArea');
   const settings = getSettings();
   if(!settings.backendUrl){
-    area.innerHTML = '<div class="empty-note">Add your Google Sheet backend in Settings to see history here.</div>';
+    area.innerHTML = `<div class="empty-note"><svg class="icon"><use href="#icon-flask"/></svg>Add your Google Sheet backend in Settings to see history here.</div>`;
     return;
   }
   area.innerHTML = '<div class="empty-note">Loading…</div>';
   try{
     const rows = await fetchHistory(5);
+    updateHomeLastTest(rows && rows.length ? rows[rows.length-1] : null);
     if(!rows || rows.length===0){
-      area.innerHTML = '<div class="empty-note">No tests logged yet.</div>';
+      area.innerHTML = `<div class="empty-note"><svg class="icon"><use href="#icon-history"/></svg>No tests logged yet.</div>`;
       return;
     }
-    let html = '<div class="history-wrap"><table class="history"><thead><tr><th>Date</th><th>pH</th><th>Br</th><th>Alk</th><th>Status</th></tr></thead><tbody>';
+    let html = '';
     rows.slice().reverse().forEach(r=>{
-      html += `<tr><td>${r.date||''}</td><td class="num">${r.ph||''}</td><td class="num">${r.bromine||''}</td><td class="num">${r.alkalinity||''}</td><td>${r.status||''}</td></tr>`;
+      const cls = classifyStatus(r.status);
+      const iconId = cls==='good' ? 'icon-check-circle' : cls==='bad' ? 'icon-alert-circle' : 'icon-alert-triangle';
+      html += `<div class="history-item ${cls}">
+        <div class="dot-wrap"><svg class="icon"><use href="#${iconId}"/></svg></div>
+        <div class="h-main">
+          <div class="h-top"><span class="h-date">${r.date||''}</span><span class="h-time mono">${r.time||''}</span></div>
+          <div class="h-status">${r.status||''}</div>
+          <div class="h-stats"><span><b>pH</b> ${r.ph??'—'}</span><span><b>Br</b> ${r.bromine??'—'}</span><span><b>Alk</b> ${r.alkalinity??'—'}</span></div>
+        </div>
+      </div>`;
     });
-    html += '</tbody></table></div>';
     area.innerHTML = html;
   } catch(err){
-    area.innerHTML = `<div class="empty-note">Could not load history: ${err.message}</div>`;
+    area.innerHTML = `<div class="empty-note"><svg class="icon"><use href="#icon-alert-circle"/></svg>Could not load history: ${err.message}</div>`;
   }
+}
+
+function updateHomeLastTest(row){
+  const el = document.getElementById('homeLastTest');
+  if(!row){ el.classList.add('hidden'); return; }
+  const cls = classifyStatus(row.status);
+  const iconId = cls==='good' ? 'icon-check-circle' : cls==='bad' ? 'icon-alert-circle' : 'icon-alert-triangle';
+  el.innerHTML = `<svg class="icon"><use href="#${iconId}"/></svg><span>Last tested ${row.date||''} ${row.time||''}</span>`;
+  el.classList.remove('hidden');
 }
 
 async function testBackend(){
