@@ -1,0 +1,834 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f7d8c">
+<title>Hot Tub Water Test</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Hot Tub Test">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,500;0,600;0,700;0,800;1,500&family=IBM+Plex+Mono:wght@500;600;700&display=swap');
+
+  :root{
+    --bg:#f4f8f7; --surface:#ffffff; --surface-sunken:#eaf1f0;
+    --ink:#14262a; --ink-muted:#5a7377; --ink-faint:#8ea1a3;
+    --border:#dbe7e5; --accent:#0f7d8c; --accent-ink:#ffffff; --accent-soft:#e1f1f2;
+    --good:#1f8a4c; --good-soft:#e3f5e9; --warn:#a5710e; --warn-soft:#faf0dc;
+    --bad:#b7413a; --bad-soft:#fbe9e7;
+    --shadow:0 1px 2px rgba(20,38,42,.05),0 10px 28px -14px rgba(20,38,42,.22);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0e1517; --surface:#151f21; --surface-sunken:#101819;
+      --ink:#e7f0ef; --ink-muted:#93a8aa; --ink-faint:#647678; --border:#263335;
+      --accent:#4fc4d3; --accent-ink:#06272c; --accent-soft:#17383d;
+      --good:#52c98a; --good-soft:#133423; --warn:#dba949; --warn-soft:#3a2d10;
+      --bad:#ec8279; --bad-soft:#3a1c18;
+      --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px -14px rgba(0,0,0,.5);
+    }
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);}
+  body{font-family:'Archivo','Segoe UI',system-ui,sans-serif;-webkit-font-smoothing:antialiased;
+    padding-bottom:env(safe-area-inset-bottom);}
+  .mono{font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;}
+  #app{max-width:520px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column;}
+
+  header.top{position:sticky;top:0;z-index:5;background:var(--bg);
+    display:flex;align-items:center;justify-content:space-between;
+    padding:calc(env(safe-area-inset-top) + 14px) 18px 12px;border-bottom:1px solid var(--border);}
+  header.top h1{font-size:18px;font-weight:800;margin:0;letter-spacing:-.01em;}
+  header.top .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:600;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:2px;}
+  .icon-btn{background:none;border:none;color:var(--ink-muted);font-size:20px;cursor:pointer;
+    padding:6px;line-height:1;border-radius:8px;}
+  .icon-btn:active{background:var(--surface-sunken);}
+
+  main{flex:1;padding:16px 18px 40px;display:flex;flex-direction:column;gap:16px;}
+  .screen{display:none;flex-direction:column;gap:16px;}
+  .screen.active{display:flex;}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;
+    box-shadow:var(--shadow);padding:18px;}
+  .section-label{font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:600;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 12px;}
+
+  button{font-family:inherit;}
+  .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
+    padding:14px 16px;border-radius:12px;border:none;font-size:15px;font-weight:700;cursor:pointer;
+    -webkit-tap-highlight-color:transparent;}
+  .btn-primary{background:var(--accent);color:var(--accent-ink);}
+  .btn-primary:active{opacity:.85;}
+  .btn-secondary{background:var(--surface-sunken);color:var(--ink);border:1px solid var(--border);}
+  .btn-secondary:active{background:var(--border);}
+  .btn-row{display:flex;gap:10px;}
+  .btn-row .btn{flex:1;}
+  .btn[disabled]{opacity:.5;pointer-events:none;}
+
+  .home-hero{display:flex;flex-direction:column;align-items:center;text-align:center;
+    padding:28px 18px;gap:6px;}
+  .home-hero .tub-name{font-size:15px;font-weight:700;}
+  .home-hero .tub-cap{font-size:12.5px;color:var(--ink-muted);}
+
+  .field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
+  .field:last-child{margin-bottom:0;}
+  .field label{font-size:11.5px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;
+    color:var(--ink-faint);}
+  .field input[type=text], .field input[type=number], .field input[type=url], .field textarea{
+    font-family:inherit;font-size:15px;padding:11px 12px;border-radius:10px;
+    border:1px solid var(--border);background:var(--surface-sunken);color:var(--ink);width:100%;}
+  .field textarea{resize:vertical;min-height:60px;}
+
+  .chip-row{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{padding:8px 14px;border-radius:999px;border:1px solid var(--border);
+    background:var(--surface-sunken);color:var(--ink);font-size:13.5px;font-weight:600;cursor:pointer;}
+  .chip.selected{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
+
+  .readings{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+  .reading{background:var(--surface-sunken);border:1px solid var(--border);border-radius:10px;
+    padding:12px 10px 10px;display:flex;flex-direction:column;gap:5px;align-items:flex-start;}
+  .reading .param{font-size:11px;font-weight:600;color:var(--ink-muted);}
+  .reading .value{font-size:22px;font-weight:700;line-height:1;}
+  .reading .value .unit{font-size:10.5px;font-weight:600;color:var(--ink-faint);margin-left:2px;}
+  .reading .range{font-size:10px;color:var(--ink-faint);}
+  .pill{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;
+    letter-spacing:.03em;text-transform:uppercase;padding:3px 8px 3px 7px;border-radius:999px;}
+  .pill::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor;}
+  .pill.good{color:var(--good);background:var(--good-soft);}
+  .pill.warn{color:var(--warn);background:var(--warn-soft);}
+  .pill.bad{color:var(--bad);background:var(--bad-soft);}
+
+  .status-line{font-size:13.5px;color:var(--ink-muted);}
+  .status-line strong{color:var(--ink);}
+  .confidence-note{font-size:12px;color:var(--ink-faint);margin-top:8px;
+    padding-top:8px;border-top:1px dashed var(--border);}
+
+  #captureCanvasWrap{position:relative;width:100%;border-radius:12px;overflow:hidden;
+    background:#000;touch-action:none;}
+  #captureCanvas{display:block;width:100%;height:auto;}
+  .sampler{position:absolute;left:4%;width:92%;height:9%;border:2px solid #fff;
+    box-shadow:0 0 0 999px rgba(0,0,0,.35);border-radius:6px;cursor:grab;
+    display:flex;align-items:center;justify-content:space-between;padding:0 8px;}
+  .sampler .tag{background:rgba(0,0,0,.55);color:#fff;font-size:11px;font-weight:700;
+    padding:2px 6px;border-radius:6px;font-family:'IBM Plex Mono',monospace;}
+  .sampler .swatch{width:20px;height:20px;border-radius:5px;border:1.5px solid #fff;}
+  .sampler.bromine{border-color:#e8b84b;}
+  .sampler.ph{border-color:#e0665a;}
+  .sampler.alk{border-color:#4fc4d3;}
+
+  .history-wrap{overflow-x:auto;}
+  table.history{width:100%;border-collapse:collapse;font-size:12.5px;}
+  table.history th,table.history td{text-align:left;padding:8px 8px;border-bottom:1px solid var(--border);
+    white-space:nowrap;}
+  table.history th{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;
+    letter-spacing:.05em;text-transform:uppercase;color:var(--ink-faint);}
+  table.history td.num{font-family:'IBM Plex Mono',monospace;}
+  table.history tr:last-child td{border-bottom:none;}
+
+  .empty-note{font-size:13px;color:var(--ink-faint);text-align:center;padding:18px 8px;}
+
+  nav.tabbar{position:sticky;bottom:0;background:var(--surface);border-top:1px solid var(--border);
+    display:flex;padding:8px 10px calc(env(safe-area-inset-bottom) + 8px);gap:4px;}
+  nav.tabbar button{flex:1;background:none;border:none;display:flex;flex-direction:column;
+    align-items:center;gap:3px;padding:6px 4px;color:var(--ink-faint);font-size:10.5px;font-weight:600;
+    cursor:pointer;}
+  nav.tabbar button.active{color:var(--accent);}
+  nav.tabbar button .dot{width:6px;height:6px;border-radius:50%;background:transparent;}
+  nav.tabbar button.active .dot{background:var(--accent);}
+
+  .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);
+    color:var(--bg);padding:10px 16px;border-radius:10px;font-size:13px;font-weight:600;
+    box-shadow:var(--shadow);z-index:50;max-width:88%;text-align:center;}
+  .toast.error{background:var(--bad);}
+  .toast.good{background:var(--good);}
+
+  .hidden{display:none!important;}
+  .row-between{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .small-muted{font-size:12px;color:var(--ink-faint);}
+  a.link{color:var(--accent);text-decoration:none;font-weight:600;}
+  hr.sep{border:none;border-top:1px solid var(--border);margin:4px 0;}
+  code.inline{background:var(--surface-sunken);padding:1px 6px;border-radius:5px;font-size:12px;
+    font-family:'IBM Plex Mono',monospace;}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <header class="top">
+    <div>
+      <div class="eyebrow" id="tubEyebrow">HOT TUB</div>
+      <h1>Water Test</h1>
+    </div>
+    <button class="icon-btn" onclick="showScreen('settings')" aria-label="Settings">&#9881;</button>
+  </header>
+
+  <main>
+
+    <!-- HOME -->
+    <section class="screen active" id="screen-home">
+      <div class="card home-hero">
+        <div class="tub-name" id="homeTubName">Wellis Malaga</div>
+        <div class="tub-cap" id="homeTubCap">1,200 litres</div>
+        <div style="height:6px;"></div>
+        <button class="btn btn-primary" style="max-width:260px;" onclick="startCapture()">&#128247; Test Water</button>
+      </div>
+
+      <div class="card">
+        <div class="row-between" style="margin-bottom:2px;">
+          <p class="section-label" style="margin:0;">Recent tests</p>
+          <button class="icon-btn" style="font-size:15px;" onclick="loadHistory()" aria-label="Refresh">&#8635;</button>
+        </div>
+        <div id="historyArea"><div class="empty-note">Loading…</div></div>
+      </div>
+    </section>
+
+    <!-- CAPTURE -->
+    <section class="screen" id="screen-capture">
+      <div class="card">
+        <p class="section-label">1. Photograph the strip</p>
+        <p class="small-muted" style="margin-top:-6px;">Good light, strip flat, all three pads visible. No need to include the bottle chart — that's already built in.</p>
+        <div style="height:10px;"></div>
+        <input type="file" accept="image/*" capture="environment" id="fileInput" style="display:none;" onchange="onPhoto(event)">
+        <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">&#128247; Take / Choose Photo</button>
+        <button class="btn btn-secondary" style="margin-top:10px;" onclick="showScreen('home')">Cancel</button>
+      </div>
+    </section>
+
+    <!-- ALIGN -->
+    <section class="screen" id="screen-align">
+      <div class="card">
+        <p class="section-label">2. Line up each bar with a pad</p>
+        <p class="small-muted" style="margin-top:-6px;">Drag the three bars so each sits over one colour pad — yellow bar on Bromine (top), red on pH (middle), teal on Alkalinity (bottom).</p>
+        <div style="height:10px;"></div>
+        <div id="captureCanvasWrap">
+          <canvas id="captureCanvas"></canvas>
+          <div class="sampler bromine" id="sampler-bromine" data-key="bromine"><span class="tag">Br</span><span class="swatch" id="swatch-bromine"></span></div>
+          <div class="sampler ph" id="sampler-ph" data-key="ph"><span class="tag">pH</span><span class="swatch" id="swatch-ph"></span></div>
+          <div class="sampler alk" id="sampler-alk" data-key="alk"><span class="tag">Alk</span><span class="swatch" id="swatch-alk"></span></div>
+        </div>
+        <div style="height:14px;"></div>
+        <div class="btn-row">
+          <button class="btn btn-secondary" onclick="showScreen('capture')">Retake</button>
+          <button class="btn btn-primary" onclick="analyzeStrip()">Analyze</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESULTS -->
+    <section class="screen" id="screen-results">
+      <div class="card">
+        <p class="section-label">Readings <span id="resultsConfBadge" class="small-muted"></span></p>
+        <div class="readings">
+          <div class="reading">
+            <span class="param">pH</span>
+            <span class="value" id="rPh">&mdash;</span>
+            <span class="range">Target 7.2&ndash;7.6</span>
+            <span class="pill" id="rPhPill"></span>
+          </div>
+          <div class="reading">
+            <span class="param">Bromine</span>
+            <span class="value" id="rBr">&mdash;</span>
+            <span class="range">Target 5&ndash;10 ppm</span>
+            <span class="pill" id="rBrPill"></span>
+          </div>
+          <div class="reading">
+            <span class="param">Alkalinity</span>
+            <span class="value" id="rAlk">&mdash;</span>
+            <span class="range">Target 80&ndash;120 ppm</span>
+            <span class="pill" id="rAlkPill"></span>
+          </div>
+        </div>
+        <div class="status-line" style="margin-top:12px;">Status: <strong id="rStatus">&mdash;</strong></div>
+        <div class="confidence-note" id="rConfNote"></div>
+      </div>
+
+      <div class="card" id="treatmentCard">
+        <p class="section-label">Recommended treatment</p>
+        <div id="treatmentBody" class="small-muted">&mdash;</div>
+      </div>
+
+      <div class="card">
+        <p class="section-label">What did you apply?</p>
+        <div class="chip-row" id="appliedChips">
+          <div class="chip" data-v="asrec">As recommended</div>
+          <div class="chip" data-v="diffdose">Different dose</div>
+          <div class="chip" data-v="diffchem">Different chemical</div>
+          <div class="chip" data-v="none">Not applying yet</div>
+        </div>
+        <div class="field" style="margin-top:12px;">
+          <label>Treatment applied (edit if needed)</label>
+          <input type="text" id="appliedText">
+        </div>
+        <div class="field">
+          <label>Notes (optional)</label>
+          <textarea id="notesText" placeholder="e.g. water a bit cloudy"></textarea>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="showScreen('home')">Discard</button>
+        <button class="btn btn-primary" id="logBtn" onclick="logTest()">Log Test</button>
+      </div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="screen" id="screen-settings">
+      <div class="card">
+        <p class="section-label">Hot tub</p>
+        <div class="field">
+          <label>Name</label>
+          <input type="text" id="setTubName">
+        </div>
+        <div class="field">
+          <label>Capacity (litres)</label>
+          <input type="number" id="setTubCap">
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="section-label">Backend (Google Sheet link)</p>
+        <p class="small-muted" style="margin-top:-6px;">Paste the Apps Script Web App URL and secret token once you've set it up in your Hot Tub Test Log sheet (Extensions &rarr; Apps Script). See the setup notes your assistant gave you.</p>
+        <div style="height:6px;"></div>
+        <div class="field">
+          <label>Web App URL</label>
+          <input type="url" id="setBackendUrl" placeholder="https://script.google.com/macros/s/.../exec">
+        </div>
+        <div class="field">
+          <label>Secret token</label>
+          <input type="text" id="setBackendToken">
+        </div>
+        <button class="btn btn-secondary" onclick="testBackend()">Test connection</button>
+        <div id="backendTestResult" class="small-muted" style="margin-top:8px;"></div>
+      </div>
+
+      <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+      <button class="btn btn-secondary" onclick="showScreen('home')">Back</button>
+    </section>
+
+  </main>
+
+  <nav class="tabbar">
+    <button class="active" id="tab-home" onclick="showScreen('home')"><span class="dot"></span>Home</button>
+    <button id="tab-capture" onclick="startCapture()"><span class="dot"></span>Test</button>
+    <button id="tab-settings" onclick="showScreen('settings')"><span class="dot"></span>Settings</button>
+  </nav>
+
+</div>
+
+<script>
+/* ---------------------------------------------------------------------
+   Hot Tub Water Test — single-file PWA
+   Reference colour data + matching methodology ported from the
+   "hot-tub-water-test" Claude skill (BlueHorizons 3+ Test Strips,
+   sampled 2026-09-13). Everything runs client-side; the only network
+   call is to a Google Apps Script Web App bound to the existing
+   "Hot Tub Test Log" Google Sheet.
+------------------------------------------------------------------------ */
+
+// ---------- Settings ----------
+const DEFAULTS = { tubName: "Wellis Malaga", tubCap: 1200, backendUrl: "", backendToken: "" };
+function getSettings(){
+  try { return Object.assign({}, DEFAULTS, JSON.parse(localStorage.getItem("httSettings") || "{}")); }
+  catch(e){ return Object.assign({}, DEFAULTS); }
+}
+function setSettings(s){ localStorage.setItem("httSettings", JSON.stringify(s)); }
+
+// ---------- Colour reference tables (hue in degrees 0-360, sat 0-1) ----------
+// Bromine: two clusters — pale yellow/cream (0,1,2 ppm) and purple (5,10,20 ppm)
+const BROMINE_TABLE = [
+  { v: 0,  hue: 52,  sat: 0.25 },
+  { v: 1,  hue: 42,  sat: 0.28 },
+  { v: 2,  hue: 33,  sat: 0.21 },
+  { v: 5,  hue: 322, sat: 0.31 },
+  { v: 10, hue: 311, sat: 0.34 },
+  { v: 20, hue: 309, sat: 0.44 }
+];
+const PH_TABLE = [
+  { v: 6.2, hue: 30 },
+  { v: 6.8, hue: 21 },
+  { v: 7.2, hue: 15 },
+  { v: 7.6, hue: 11 },
+  { v: 8.0, hue: 7.5 },
+  { v: 8.4, hue: 0 }
+];
+const ALK_TABLE = [
+  { v: 0,   hue: 37,  sat: 0.37 },
+  { v: 40,  hue: 48,  sat: 0.30 },
+  { v: 80,  hue: 54,  sat: 0.24 },
+  { v: 120, hue: 66,  sat: 0.13 },
+  { v: 180, hue: 170, sat: 0.20 },
+  { v: 240, hue: 202, sat: 0.24 }
+];
+
+function rgbToHsv(r,g,b){
+  r/=255; g/=255; b/=255;
+  const max=Math.max(r,g,b), min=Math.min(r,g,b), d=max-min;
+  let h=0;
+  if(d!==0){
+    if(max===r) h=60*(((g-b)/d)%6);
+    else if(max===g) h=60*(((b-r)/d)+2);
+    else h=60*(((r-g)/d)+4);
+  }
+  if(h<0) h+=360;
+  const s = max===0 ? 0 : d/max;
+  const v = max;
+  return {h,s,v};
+}
+
+function interp(table, hue, key){
+  // find two nearest table entries by circular hue distance, interpolate `key` (v) between them
+  function circDist(a,b){ let d=Math.abs(a-b)%360; return d>180?360-d:d; }
+  const sorted = table.map(e=>({...e, d: circDist(e.hue, hue)})).sort((a,b)=>a.d-b.d);
+  const a = sorted[0], b = sorted[1];
+  const span = circDist(a.hue,b.hue) || 1;
+  let t = circDist(a.hue,hue)/span;
+  t = Math.max(0, Math.min(1, t));
+  return a.v + (b.v - a.v) * t;
+}
+
+function matchPh(rgb){
+  const {h} = rgbToHsv(rgb.r, rgb.g, rgb.b);
+  const val = interp(PH_TABLE, h, 'v');
+  return { value: Math.round(val*10)/10, confidence: 'high' };
+}
+
+function matchBromine(rgb){
+  const {h,s} = rgbToHsv(rgb.r, rgb.g, rgb.b);
+  // decide cluster: yellow cluster hue roughly 0-90, purple cluster roughly 270-360
+  const yellowTable = BROMINE_TABLE.filter(e=>e.v<=2);
+  const purpleTable = BROMINE_TABLE.filter(e=>e.v>=5);
+  let table, cluster;
+  if(h>=250 || h<=15){ table = purpleTable; cluster='purple'; }
+  else { table = yellowTable; cluster='yellow'; }
+  let val = interp(table, h, 'v');
+  let confidence = 'medium';
+  if(cluster==='yellow' && s < 0.15){
+    // very low saturation reads at the low end of OK rather than 0 — nudge toward 2
+    val = Math.max(val, 1.6);
+    confidence = 'medium';
+  }
+  return { value: Math.round(val*10)/10, confidence };
+}
+
+function matchAlkalinity(rgb){
+  const {h,s} = rgbToHsv(rgb.r, rgb.g, rgb.b);
+  // 120 and 180 are far apart in hue with a low-saturation transition zone between them —
+  // treat anything with low saturation in the 55-160 hue range as uncertain.
+  let lowTable = ALK_TABLE.filter(e=>e.v<=120);
+  let highTable = ALK_TABLE.filter(e=>e.v>=120);
+  let low = interp(lowTable, h, 'v');
+  let high = interp(highTable, h, 'v');
+  let uncertain = (h > 58 && h < 165);
+  let val, confidence, rangeLabel;
+  if(!uncertain){
+    val = h <= 66 ? low : high;
+    confidence = 'high';
+    rangeLabel = String(Math.round(val));
+  } else {
+    // report a range spanning the two plausible reads
+    confidence = 'low';
+    const lo = Math.min(low, high), hi = Math.max(low, high);
+    val = Math.round((lo+hi)/2);
+    rangeLabel = Math.round(Math.max(80,lo)) + "–" + Math.round(Math.min(200,hi));
+  }
+  return { value: val, label: rangeLabel, confidence };
+}
+
+// ---------- Treatment calculation (scaled from the 1200L quick-reference) ----------
+function calcTreatment(readings, tubCap){
+  const scale = tubCap / 1200;
+  const lines = [];
+  let anyTreatment = false;
+
+  if(readings.ph.value < 7.2 || readings.ph.value > 7.6){
+    anyTreatment = true;
+    const g1 = Math.round(10*scale*10)/10, g2 = Math.round(15*scale*10)/10;
+    const t1 = Math.round(g1/5*10)/10, t2 = Math.round(g2/5*10)/10;
+    if(readings.ph.value > 7.6){
+      lines.push(`pH Decreaser ${g1}–${g2}g (${t1}–${t2} tsp) — pH is high`);
+    } else {
+      lines.push(`pH Increaser ${g1}–${g2}g (${t1}–${t2} tsp) — pH is low`);
+    }
+  }
+
+  if(readings.bromine.value < 5){
+    anyTreatment = true;
+    const deficit = Math.max(0, 7.5 - readings.bromine.value);
+    const g1 = Math.round(deficit*5*scale*10)/10, g2 = Math.round(deficit*10*scale*10)/10;
+    const t1 = Math.round(g1/5*10)/10, t2 = Math.round(g2/5*10)/10;
+    lines.push(`Bromine Powder ~${g1}–${g2}g (${t1}–${t2} tsp) — to raise ~${Math.round(deficit*10)/10}ppm`);
+  } else if(readings.bromine.value > 10){
+    anyTreatment = true;
+    lines.push(`Dilute with fresh water — bromine is high`);
+  }
+
+  const alkConfident = readings.alk.confidence !== 'low';
+  if(alkConfident && (readings.alk.value < 80 || readings.alk.value > 120)){
+    anyTreatment = true;
+    if(readings.alk.value < 80){
+      const steps = (80 - readings.alk.value)/10;
+      const g = Math.round(12*scale*steps*10)/10, t = Math.round(g/5*10)/10;
+      lines.push(`Alkalinity Increaser ~${g}g (~${t} tsp) — alkalinity is low`);
+    } else {
+      lines.push(`Dilute with fresh water — alkalinity is high`);
+    }
+  } else if(!alkConfident){
+    lines.push(`Alkalinity reading is uncertain from photo (~${readings.alk.label}ppm) — no automatic recommendation; check directly if it matters for your next dose`);
+  }
+
+  return { lines, anyTreatment };
+}
+
+function statusText(readings){
+  const parts = [];
+  parts.push(readings.ph.value > 7.6 ? "pH HIGH" : readings.ph.value < 7.2 ? "pH LOW" : "pH OK");
+  parts.push(readings.bromine.value < 5 ? "Bromine LOW" : readings.bromine.value > 10 ? "Bromine HIGH" : "Bromine OK");
+  if(readings.alk.confidence === 'low'){
+    parts.push(`Alkalinity ~${readings.alk.label}ppm (uncertain)`);
+  } else {
+    parts.push(readings.alk.value < 80 ? "Alkalinity LOW" : readings.alk.value > 120 ? "Alkalinity HIGH" : "Alkalinity Normal");
+  }
+  return parts.join(", ");
+}
+
+function pillFor(param, readings){
+  if(param==='ph'){
+    if(readings.ph.value>7.6 || readings.ph.value<7.2) return {cls:'bad', label: readings.ph.value>7.6?'High':'Low'};
+    return {cls:'good', label:'OK'};
+  }
+  if(param==='bromine'){
+    if(readings.bromine.value<2) return {cls:'bad', label:'Low'};
+    if(readings.bromine.value<5) return {cls:'warn', label:'Low end'};
+    if(readings.bromine.value>10) return {cls:'bad', label:'High'};
+    return {cls:'good', label:'OK'};
+  }
+  if(param==='alk'){
+    if(readings.alk.confidence==='low') return {cls:'warn', label:'Uncertain'};
+    if(readings.alk.value<80) return {cls:'bad', label:'Low'};
+    if(readings.alk.value>120) return {cls:'bad', label:'High'};
+    return {cls:'good', label:'Normal'};
+  }
+}
+
+// ---------- Screen management ----------
+let currentScreen = 'home';
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  currentScreen = name;
+  ['home','capture','settings'].forEach(t=>{
+    const el = document.getElementById('tab-'+t);
+    if(el) el.classList.toggle('active', t===name || (t==='capture' && (name==='align'||name==='results')));
+  });
+  if(name==='home') loadHistory();
+  if(name==='settings') populateSettingsForm();
+}
+
+function startCapture(){ showScreen('capture'); }
+
+// ---------- Photo capture + alignment ----------
+let photoImg = null;
+function onPhoto(evt){
+  const file = evt.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    const img = new Image();
+    img.onload = function(){
+      photoImg = img;
+      const canvas = document.getElementById('captureCanvas');
+      const maxW = 900;
+      const scale = Math.min(1, maxW/img.width);
+      canvas.width = img.width*scale;
+      canvas.height = img.height*scale;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img,0,0,canvas.width,canvas.height);
+      showScreen('align');
+      setTimeout(initSamplers, 50);
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+  evt.target.value = "";
+}
+
+const samplerPos = { bromine: 0.22, ph: 0.5, alk: 0.78 }; // fraction of canvas height
+function initSamplers(){
+  ['bromine','ph','alk'].forEach(key=>{
+    const el = document.getElementById('sampler-'+key);
+    positionSampler(key);
+    makeDraggable(el, key);
+  });
+  updateSwatches();
+}
+function positionSampler(key){
+  const wrap = document.getElementById('captureCanvasWrap');
+  const el = document.getElementById('sampler-'+key);
+  const h = wrap.clientHeight;
+  el.style.top = (samplerPos[key]*h - el.clientHeight/2) + "px";
+}
+function makeDraggable(el, key){
+  let dragging = false;
+  function start(e){ dragging = true; e.preventDefault(); }
+  function move(e){
+    if(!dragging) return;
+    const wrap = document.getElementById('captureCanvasWrap');
+    const rect = wrap.getBoundingClientRect();
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    let frac = (clientY - rect.top) / rect.height;
+    frac = Math.max(0.03, Math.min(0.97, frac));
+    samplerPos[key] = frac;
+    positionSampler(key);
+    updateSwatches();
+  }
+  function end(){ dragging = false; }
+  el.addEventListener('mousedown', start);
+  el.addEventListener('touchstart', start, {passive:false});
+  window.addEventListener('mousemove', move);
+  window.addEventListener('touchmove', move, {passive:false});
+  window.addEventListener('mouseup', end);
+  window.addEventListener('touchend', end);
+}
+
+function sampleColor(key){
+  const canvas = document.getElementById('captureCanvas');
+  const ctx = canvas.getContext('2d');
+  const wrap = document.getElementById('captureCanvasWrap');
+  const el = document.getElementById('sampler-'+key);
+  const scaleY = canvas.height / wrap.clientHeight;
+  const scaleX = canvas.width / wrap.clientWidth;
+  const boxH = el.clientHeight * scaleY;
+  const y = samplerPos[key]*canvas.height - boxH/2;
+  const x = canvas.width*0.08;
+  const w = canvas.width*0.84;
+  const h = Math.max(4, boxH*0.6);
+  const sy = Math.max(0, Math.min(canvas.height-h, y + boxH*0.2));
+  let data;
+  try { data = ctx.getImageData(x, sy, w, h).data; } catch(e){ return {r:200,g:200,b:200}; }
+  let r=0,g=0,b=0,n=0;
+  for(let i=0;i<data.length;i+=4){ r+=data[i]; g+=data[i+1]; b+=data[i+2]; n++; }
+  return { r:r/n, g:g/n, b:b/n };
+}
+
+function updateSwatches(){
+  ['bromine','ph','alk'].forEach(key=>{
+    const c = sampleColor(key);
+    const sw = document.getElementById('swatch-'+key);
+    sw.style.background = `rgb(${c.r|0},${c.g|0},${c.b|0})`;
+  });
+}
+
+// ---------- Analyze ----------
+let lastReadings = null;
+function analyzeStrip(){
+  const brRgb = sampleColor('bromine');
+  const phRgb = sampleColor('ph');
+  const alkRgb = sampleColor('alk');
+
+  const ph = matchPh(phRgb);
+  const bromine = matchBromine(brRgb);
+  const alk = matchAlkalinity(alkRgb);
+  lastReadings = { ph, bromine, alk };
+
+  document.getElementById('rPh').textContent = ph.value.toFixed(1);
+  document.getElementById('rBr').innerHTML = (bromine.value<3?'~':'') + Math.round(bromine.value*10)/10 + '<span class="unit">ppm</span>';
+  document.getElementById('rAlk').innerHTML = (alk.confidence==='low' ? '~'+alk.label : Math.round(alk.value)) + '<span class="unit">ppm</span>';
+
+  setPill('rPhPill','ph');
+  setPill('rBrPill','bromine');
+  setPill('rAlkPill','alk');
+
+  document.getElementById('rStatus').textContent = statusText(lastReadings);
+
+  const confNote = [];
+  if(bromine.confidence!=='high') confNote.push('Bromine read from pad colour, moderate confidence.');
+  if(alk.confidence==='low') confNote.push('Alkalinity is in the uncertain photo-reading zone — treat as approximate.');
+  document.getElementById('rConfNote').textContent = confNote.join(' ');
+  document.getElementById('resultsConfBadge').textContent = '';
+
+  const settings = getSettings();
+  const treatment = calcTreatment(lastReadings, settings.tubCap);
+  const tbody = document.getElementById('treatmentBody');
+  if(treatment.lines.length===0){
+    tbody.textContent = 'Water looks balanced — no treatment needed.';
+  } else {
+    tbody.innerHTML = treatment.lines.map(l=>`<div style="margin-bottom:6px;">${l}</div>`).join('');
+  }
+  lastReadings.treatmentText = treatment.lines.join('; ') || 'None';
+  lastReadings.anyTreatment = treatment.anyTreatment;
+
+  document.getElementById('appliedText').value = treatment.anyTreatment ? (treatment.lines[0]||'') : '';
+  document.querySelectorAll('#appliedChips .chip').forEach(c=>c.classList.remove('selected'));
+  if(!treatment.anyTreatment){
+    selectChip('none');
+  }
+
+  showScreen('results');
+}
+
+function setPill(id, param){
+  const {cls,label} = pillFor(param, lastReadings);
+  const el = document.getElementById(id);
+  el.className = 'pill '+cls;
+  el.textContent = label;
+}
+
+document.getElementById('appliedChips').addEventListener('click', (e)=>{
+  const chip = e.target.closest('.chip');
+  if(!chip) return;
+  selectChip(chip.dataset.v);
+});
+function selectChip(v){
+  document.querySelectorAll('#appliedChips .chip').forEach(c=>c.classList.toggle('selected', c.dataset.v===v));
+  const rec = (lastReadings && lastReadings.treatmentText) || '';
+  const box = document.getElementById('appliedText');
+  if(v==='asrec') box.value = rec;
+  if(v==='none') box.value = 'Not applied yet';
+}
+
+// ---------- Backend (Apps Script Web App) ----------
+async function callBackend(payload){
+  const settings = getSettings();
+  if(!settings.backendUrl) throw new Error('No backend URL configured yet — add it in Settings.');
+  const res = await fetch(settings.backendUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // avoids CORS preflight against Apps Script
+    body: JSON.stringify(Object.assign({ token: settings.backendToken }, payload))
+  });
+  const json = await res.json();
+  if(!json.ok) throw new Error(json.error || 'Backend error');
+  return json;
+}
+
+async function fetchHistory(limit){
+  const settings = getSettings();
+  if(!settings.backendUrl) return null;
+  const url = settings.backendUrl + (settings.backendUrl.includes('?') ? '&' : '?') +
+    'action=history&limit=' + (limit||5) + '&token=' + encodeURIComponent(settings.backendToken);
+  const res = await fetch(url);
+  const json = await res.json();
+  if(!json.ok) throw new Error(json.error || 'Backend error');
+  return json.rows;
+}
+
+function showToast(msg, type){
+  const t = document.createElement('div');
+  t.className = 'toast' + (type?' '+type:'');
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(), 3200);
+}
+
+async function logTest(){
+  const btn = document.getElementById('logBtn');
+  btn.disabled = true; btn.textContent = 'Logging…';
+  const settings = getSettings();
+  const now = new Date();
+  const payload = {
+    date: now.toISOString().slice(0,10),
+    time: now.toTimeString().slice(0,5),
+    ph: lastReadings.ph.value,
+    bromine: lastReadings.bromine.confidence!=='high' ? ('~'+lastReadings.bromine.value+' (est.)') : lastReadings.bromine.value,
+    alkalinity: lastReadings.alk.confidence==='low' ? ('~'+lastReadings.alk.label+' (est.)') : lastReadings.alk.value,
+    status: statusText(lastReadings),
+    recommended: lastReadings.treatmentText,
+    applied: document.getElementById('appliedText').value || 'Not applied yet',
+    followed: currentAppliedFollowLabel(),
+    notes: document.getElementById('notesText').value || ''
+  };
+  try{
+    await callBackend(Object.assign({ action:'log' }, payload));
+    showToast('Test logged ✓', 'good');
+    showScreen('home');
+  } catch(err){
+    showToast('Could not log: ' + err.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Log Test';
+  }
+}
+
+function currentAppliedFollowLabel(){
+  const sel = document.querySelector('#appliedChips .chip.selected');
+  if(!sel) return lastReadings.anyTreatment ? 'Different dose' : 'N/A - no treatment needed';
+  return { asrec:'Yes', diffdose:'Different dose', diffchem:'Different chemical', none:'Not applied yet' }[sel.dataset.v];
+}
+
+async function loadHistory(){
+  const area = document.getElementById('historyArea');
+  const settings = getSettings();
+  if(!settings.backendUrl){
+    area.innerHTML = '<div class="empty-note">Add your Google Sheet backend in Settings to see history here.</div>';
+    return;
+  }
+  area.innerHTML = '<div class="empty-note">Loading…</div>';
+  try{
+    const rows = await fetchHistory(5);
+    if(!rows || rows.length===0){
+      area.innerHTML = '<div class="empty-note">No tests logged yet.</div>';
+      return;
+    }
+    let html = '<div class="history-wrap"><table class="history"><thead><tr><th>Date</th><th>pH</th><th>Br</th><th>Alk</th><th>Status</th></tr></thead><tbody>';
+    rows.slice().reverse().forEach(r=>{
+      html += `<tr><td>${r.date||''}</td><td class="num">${r.ph||''}</td><td class="num">${r.bromine||''}</td><td class="num">${r.alkalinity||''}</td><td>${r.status||''}</td></tr>`;
+    });
+    html += '</tbody></table></div>';
+    area.innerHTML = html;
+  } catch(err){
+    area.innerHTML = `<div class="empty-note">Could not load history: ${err.message}</div>`;
+  }
+}
+
+async function testBackend(){
+  const url = document.getElementById('setBackendUrl').value.trim();
+  const token = document.getElementById('setBackendToken').value.trim();
+  const resultEl = document.getElementById('backendTestResult');
+  resultEl.textContent = 'Testing…';
+  try{
+    const res = await fetch(url + (url.includes('?')?'&':'?') + 'action=ping&token=' + encodeURIComponent(token));
+    const json = await res.json();
+    resultEl.textContent = json.ok ? '✓ Connected' : ('✗ ' + (json.error||'Failed'));
+  } catch(err){
+    resultEl.textContent = '✗ ' + err.message;
+  }
+}
+
+// ---------- Settings screen ----------
+function populateSettingsForm(){
+  const s = getSettings();
+  document.getElementById('setTubName').value = s.tubName;
+  document.getElementById('setTubCap').value = s.tubCap;
+  document.getElementById('setBackendUrl').value = s.backendUrl;
+  document.getElementById('setBackendToken').value = s.backendToken;
+}
+function saveSettings(){
+  const s = {
+    tubName: document.getElementById('setTubName').value || DEFAULTS.tubName,
+    tubCap: parseFloat(document.getElementById('setTubCap').value) || DEFAULTS.tubCap,
+    backendUrl: document.getElementById('setBackendUrl').value.trim(),
+    backendToken: document.getElementById('setBackendToken').value.trim()
+  };
+  setSettings(s);
+  applyTubInfo();
+  showToast('Settings saved', 'good');
+  showScreen('home');
+}
+function applyTubInfo(){
+  const s = getSettings();
+  document.getElementById('homeTubName').textContent = s.tubName;
+  document.getElementById('homeTubCap').textContent = Number(s.tubCap).toLocaleString() + ' litres';
+}
+
+// ---------- Init ----------
+window.addEventListener('resize', ()=>{ if(currentScreen==='align'){ ['bromine','ph','alk'].forEach(positionSampler); } });
+applyTubInfo();
+loadHistory();
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=> navigator.serviceWorker.register('/sw.js').catch(()=>{}));
+}
+</script>
+</body>
+</html>
