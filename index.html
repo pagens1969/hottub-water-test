@@ -425,9 +425,9 @@ function matchAlkalinity(rgb){
   let uncertain = (h > 58 && h < 165);
   let val, confidence, rangeLabel;
   if(!uncertain){
-    val = h <= 66 ? low : high;
+    val = Math.round(h <= 66 ? low : high);
     confidence = 'high';
-    rangeLabel = String(Math.round(val));
+    rangeLabel = String(val);
   } else {
     // report a range spanning the two plausible reads
     confidence = 'low';
